@@ -5,7 +5,37 @@ def process_command(command: str):
 
     text = command.lower().strip()
 
-    # OPEN APPLICATION
+    # -------------------------
+    # CHROME
+    # -------------------------
+
+    if text == "open chrome":
+        return execute_tool("open_chrome", {"profile": "main"})
+
+    if text == "open main chrome":
+        return execute_tool("open_chrome", {"profile": "main"})
+
+    if text == "open second chrome":
+        return execute_tool("open_chrome", {"profile": "second"})
+
+    if text == "open college chrome":
+        return execute_tool("open_chrome", {"profile": "college"})
+
+    if text == "open backup chrome":
+        return execute_tool("open_chrome", {"profile": "backup"})
+
+    # -------------------------
+    # SPECIAL CHROME URL
+    # -------------------------
+
+    if text == "open classroom":
+        return execute_tool(
+            "open_chrome", {"profile": "college", "url": "https://classroom.google.com"}
+        )
+
+    # -------------------------
+    # OPEN
+    # -------------------------
 
     if text.startswith("open "):
 
@@ -31,24 +61,14 @@ def process_command(command: str):
 
         return execute_tool("open_app", {"app_name": app})
 
-    # CLOSE APPLICATION
+    # -------------------------
+    # CLOSE
+    # -------------------------
 
     if text.startswith("close "):
 
         app = text.replace("close ", "", 1)
 
         return execute_tool("close_app", {"app_name": app})
-
-    # LOCK PC
-
-    if text in ["lock pc", "lock computer", "lock my computer"]:
-
-        return execute_tool("lock_pc", {})
-
-    # SYSTEM INFO
-
-    if text in ["system info", "computer info", "pc info"]:
-
-        return execute_tool("system_info", {})
 
     return {"success": False, "message": "I don't understand that command yet."}

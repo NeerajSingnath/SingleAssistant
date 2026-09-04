@@ -1,14 +1,40 @@
 import subprocess
 import psutil
 
+CHROME_PATH = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 APP_PATHS = {
-    "chrome": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     "notepad": "notepad.exe",
     "calculator": "calc.exe",
     "paint": "mspaint.exe",
     "settings": "ms-settings:",
     "explorer": "explorer.exe",
 }
+
+CHROME_PROFILES = {
+    "main": "Default",
+    "second": "Profile 4",
+    "college": "Profile 12",
+    "backup": "Profile 6",
+}
+
+
+def open_chrome(profile: str = "main", url: str | None = None):
+
+    profile = profile.lower().strip()
+
+    profile_directory = CHROME_PROFILES.get(profile)
+
+    if not profile_directory:
+        return {"success": False, "message": f"Unknown Chrome profile: {profile}"}
+
+    command = [CHROME_PATH, f"--profile-directory={profile_directory}"]
+
+    if url:
+        command.append(url)
+
+    subprocess.Popen(command)
+
+    return {"success": True, "message": f"Opened Chrome using the {profile} profile."}
 
 
 def open_app(app_name: str):

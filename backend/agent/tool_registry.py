@@ -1,9 +1,10 @@
-from tools.apps import open_app, close_app
+from tools.apps import open_app, close_app, open_chrome
 from tools.system import open_settings, lock_pc, system_info
 
 TOOLS = {
     "open_app": open_app,
     "close_app": close_app,
+    "open_chrome": open_chrome,
     "open_settings": open_settings,
     "lock_pc": lock_pc,
     "system_info": system_info,
