@@ -110,6 +110,48 @@ arguments:
 
 Sets display brightness from 0 to 100.
 
+12. open_dynamic_app
+arguments:
+{
+    "app_name": string
+}
+
+Use this for installed Windows apps not covered by explicit tools.
+
+Examples:
+Spotify
+Discord
+PyCharm
+Visual Studio Code
+Steam
+
+
+13. open_folder
+arguments:
+{
+    "folder": string
+}
+
+Supported common folders:
+desktop
+downloads
+documents
+pictures
+videos
+music
+
+
+14. open_path
+arguments:
+{
+    "path": string
+}
+
+Opens a specific local file or folder path.
+Only use this when the user explicitly provides or clearly identifies a path.
+
+
+
 
 Return ONLY valid JSON.
 
@@ -231,6 +273,14 @@ Correct:
 Never invent tools.
 Never return shell commands.
 Only use tools explicitly available to you.
+
+When opening an installed application:
+
+- Use open_chrome for Chrome.
+- Use open_app for known built-in applications.
+- Use open_dynamic_app for other installed applications.
+
+Never invent executable paths.
 """
 
 

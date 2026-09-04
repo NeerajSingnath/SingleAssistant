@@ -11,10 +11,22 @@ from tools.system import (
     set_brightness,
 )
 
+from tools.windows_apps import (
+    open_dynamic_app,
+)
+
+from tools.files import (
+    open_folder,
+    open_path,
+)
+
 TOOLS = {
     "open_app": open_app,
     "close_app": close_app,
     "open_chrome": open_chrome,
+    "open_dynamic_app": open_dynamic_app,
+    "open_folder": open_folder,
+    "open_path": open_path,
     "open_settings": open_settings,
     "lock_pc": lock_pc,
     "system_info": system_info,
@@ -27,7 +39,6 @@ TOOLS = {
 
 
 def execute_tool(tool_name: str, arguments: dict):
-
     tool = TOOLS.get(tool_name)
 
     if not tool:
