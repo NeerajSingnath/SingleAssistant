@@ -1,5 +1,15 @@
 from tools.apps import open_app, close_app, open_chrome
-from tools.system import open_settings, lock_pc, system_info
+
+from tools.system import (
+    open_settings,
+    lock_pc,
+    system_info,
+    set_volume,
+    get_volume,
+    mute_audio,
+    unmute_audio,
+    set_brightness,
+)
 
 TOOLS = {
     "open_app": open_app,
@@ -8,10 +18,16 @@ TOOLS = {
     "open_settings": open_settings,
     "lock_pc": lock_pc,
     "system_info": system_info,
+    "set_volume": set_volume,
+    "get_volume": get_volume,
+    "mute_audio": mute_audio,
+    "unmute_audio": unmute_audio,
+    "set_brightness": set_brightness,
 }
 
 
 def execute_tool(tool_name: str, arguments: dict):
+
     tool = TOOLS.get(tool_name)
 
     if not tool:

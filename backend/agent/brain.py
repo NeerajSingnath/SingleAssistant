@@ -76,6 +76,40 @@ arguments:
 arguments:
 {}
 
+7. set_volume
+arguments:
+{
+    "level": integer
+}
+
+Sets Windows volume from 0 to 100.
+
+
+8. get_volume
+arguments:
+{}
+
+Returns current system volume and mute state.
+
+
+9. mute_audio
+arguments:
+{}
+
+
+10. unmute_audio
+arguments:
+{}
+
+
+11. set_brightness
+arguments:
+{
+    "level": integer
+}
+
+Sets display brightness from 0 to 100.
+
 
 Return ONLY valid JSON.
 
@@ -88,6 +122,71 @@ Format:
         {
             "tool": "tool_name",
             "arguments": {}
+        }
+    ]
+}
+
+User: Set volume to 30 percent
+
+{
+    "actions": [
+        {
+            "tool": "set_volume",
+            "arguments": {
+                "level": 30
+            }
+        }
+    ]
+}
+
+
+User: Mute the computer
+
+{
+    "actions": [
+        {
+            "tool": "mute_audio",
+            "arguments": {}
+        }
+    ]
+}
+
+Examples:
+User: Set volume to 30 percent
+
+{
+    "actions": [
+        {
+            "tool": "set_volume",
+            "arguments": {
+                "level": 30
+            }
+        }
+    ]
+}
+
+
+User: Mute the computer
+
+{
+    "actions": [
+        {
+            "tool": "mute_audio",
+            "arguments": {}
+        }
+    ]
+}
+
+
+User: Set brightness to 70%
+
+{
+    "actions": [
+        {
+            "tool": "set_brightness",
+            "arguments": {
+                "level": 70
+            }
         }
     ]
 }
