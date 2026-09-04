@@ -151,7 +151,62 @@ Opens a specific local file or folder path.
 Only use this when the user explicitly provides or clearly identifies a path.
 
 
+15. take_screenshot
+arguments:
+{}
 
+Captures the current desktop and saves the image.
+
+
+16. play_pause_media
+arguments:
+{}
+
+Toggles the currently playing media.
+
+
+17. next_track
+arguments:
+{}
+
+Skips to the next media track.
+
+
+18. previous_track
+arguments:
+{}
+
+Returns to the previous media track.
+
+
+19. volume_up
+arguments:
+{
+    "steps": integer
+}
+
+Raises system volume by media-key steps.
+
+
+20. volume_down
+arguments:
+{
+    "steps": integer
+}
+
+Lowers system volume by media-key steps.
+If the user specifies an exact volume percentage,
+use set_volume.
+
+Example:
+"Set volume to 25%" -> set_volume(level=25)
+
+If the user asks for a relative change,
+use volume_up or volume_down.
+
+Example:
+"Turn the volume up a little" -> volume_up(steps=2)
+"Lower the volume" -> volume_down(steps=2)
 
 Return ONLY valid JSON.
 

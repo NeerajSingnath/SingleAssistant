@@ -20,6 +20,15 @@ from tools.files import (
     open_path,
 )
 
+from tools.media import (
+    take_screenshot,
+    play_pause_media,
+    next_track,
+    previous_track,
+    volume_up,
+    volume_down,
+)
+
 TOOLS = {
     "open_app": open_app,
     "close_app": close_app,
@@ -35,6 +44,12 @@ TOOLS = {
     "mute_audio": mute_audio,
     "unmute_audio": unmute_audio,
     "set_brightness": set_brightness,
+    "take_screenshot": take_screenshot,
+    "play_pause_media": play_pause_media,
+    "next_track": next_track,
+    "previous_track": previous_track,
+    "volume_up": volume_up,
+    "volume_down": volume_down,
 }
 
 
