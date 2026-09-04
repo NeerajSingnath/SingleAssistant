@@ -79,64 +79,63 @@ arguments:
 
 Return ONLY valid JSON.
 
+Always return an object containing an "actions" array.
+
 Format:
 
 {
-    "tool": "tool_name",
-    "arguments": {}
+    "actions": [
+        {
+            "tool": "tool_name",
+            "arguments": {}
+        }
+    ]
 }
 
-Examples:
+You MUST include every explicitly requested action.
 
-User: Open Chrome
+If the user asks for N distinct actions,
+the actions array must contain N corresponding actions.
+
+Do not omit an action because another action seems more important.
+
+Example:
+
+User:
+Open Chrome, Notepad and Bluetooth settings.
+
+Correct:
 {
-    "tool": "open_chrome",
-    "arguments": {
+  "actions": [
+    {
+      "tool": "open_chrome",
+      "arguments": {
         "profile": "main",
         "url": null
-    }
-}
-
-User: Open my college Chrome
-{
-    "tool": "open_chrome",
-    "arguments": {
-        "profile": "college",
-        "url": null
-    }
-}
-
-User: Open Classroom in my college account
-{
-    "tool": "open_chrome",
-    "arguments": {
-        "profile": "college",
-        "url": "https://classroom.google.com"
-    }
-}
-
-User: Open Bluetooth settings
-{
-    "tool": "open_settings",
-    "arguments": {
+      }
+    },
+    {
+      "tool": "open_app",
+      "arguments": {
+        "app_name": "notepad"
+      }
+    },
+    {
+      "tool": "open_settings",
+      "arguments": {
         "setting": "bluetooth"
+      }
     }
+  ]
 }
 
-User: Close Chrome
-{
-    "tool": "close_app",
-    "arguments": {
-        "app_name": "chrome"
-    }
-}
-
-Do not invent tools.
-Do not execute commands yourself.
+Never invent tools.
+Never return shell commands.
+Only use tools explicitly available to you.
 """
 
 
-def get_tool_call(command: str):
+def get_plan(command: str):
 
     response = ollama.chat(
         model="qwen2.5:7b",
@@ -152,28 +151,49 @@ def get_tool_call(command: str):
     try:
         data = json.loads(content)
 
+        if "actions" not in data:
+            return {"actions": [], "error": "Model did not return an actions list."}
+
         return data
 
     except json.JSONDecodeError:
-
-        return {"tool": None, "arguments": {}, "error": "Model returned invalid JSON"}
+        return {"actions": [], "error": "Model returned invalid JSON."}
 
 
 def process_command(command: str):
 
-    tool_call = get_tool_call(command)
+    plan = get_plan(command)
 
-    tool_name = tool_call.get("tool")
-    arguments = tool_call.get("arguments", {})
+    actions = plan.get("actions", [])
+    MAX_ACTIONS = 10
 
-    if not tool_name:
+    if len(actions) > MAX_ACTIONS:
         return {
             "success": False,
-            "message": tool_call.get(
-                "error", "Unable to determine the requested action."
-            ),
+            "message": f"Plan contains too many actions ({len(actions)}).",
         }
 
-    result = execute_tool(tool_name, arguments)
+    if not actions:
+        return {
+            "success": False,
+            "message": plan.get("error", "No actions were generated."),
+        }
 
-    return {"tool": tool_name, "arguments": arguments, "result": result}
+    results = []
+
+    for action in actions:
+
+        tool_name = action.get("tool")
+        arguments = action.get("arguments", {})
+
+        if not tool_name:
+            results.append(
+                {"success": False, "message": "Action is missing a tool name."}
+            )
+            continue
+
+        result = execute_tool(tool_name, arguments)
+
+        results.append({"tool": tool_name, "arguments": arguments, "result": result})
+
+    return {"success": True, "actions_executed": len(results), "results": results}
