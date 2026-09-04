@@ -1,74 +1,179 @@
+import json
+import ollama
+
 from agent.tool_registry import execute_tool
+
+SYSTEM_PROMPT = """
+You are the planning brain of a Windows desktop assistant.
+
+Your job is to convert the user's request into a tool call.
+
+Available tools:
+
+1. open_app
+arguments:
+{
+    "app_name": string
+}
+
+Supported apps:
+notepad
+calculator
+paint
+explorer
+
+
+2. close_app
+arguments:
+{
+    "app_name": string
+}
+
+Supported apps:
+chrome
+notepad
+paint
+calculator
+
+
+3. open_chrome
+arguments:
+{
+    "profile": "main" | "second" | "college" | "backup",
+    "url": string | null
+}
+
+Chrome profile mappings:
+main = user's primary personal Chrome
+second = user's second Chrome profile
+college = user's college Chrome
+backup = user's backup Chrome
+
+
+4. open_settings
+arguments:
+{
+    "setting": string
+}
+
+Supported settings:
+bluetooth
+wifi
+display
+sound
+notifications
+apps
+windows update
+privacy
+
+
+5. lock_pc
+arguments:
+{}
+
+
+6. system_info
+arguments:
+{}
+
+
+Return ONLY valid JSON.
+
+Format:
+
+{
+    "tool": "tool_name",
+    "arguments": {}
+}
+
+Examples:
+
+User: Open Chrome
+{
+    "tool": "open_chrome",
+    "arguments": {
+        "profile": "main",
+        "url": null
+    }
+}
+
+User: Open my college Chrome
+{
+    "tool": "open_chrome",
+    "arguments": {
+        "profile": "college",
+        "url": null
+    }
+}
+
+User: Open Classroom in my college account
+{
+    "tool": "open_chrome",
+    "arguments": {
+        "profile": "college",
+        "url": "https://classroom.google.com"
+    }
+}
+
+User: Open Bluetooth settings
+{
+    "tool": "open_settings",
+    "arguments": {
+        "setting": "bluetooth"
+    }
+}
+
+User: Close Chrome
+{
+    "tool": "close_app",
+    "arguments": {
+        "app_name": "chrome"
+    }
+}
+
+Do not invent tools.
+Do not execute commands yourself.
+"""
+
+
+def get_tool_call(command: str):
+
+    response = ollama.chat(
+        model="qwen2.5:7b",
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": command},
+        ],
+        format="json",
+    )
+
+    content = response["message"]["content"]
+
+    try:
+        data = json.loads(content)
+
+        return data
+
+    except json.JSONDecodeError:
+
+        return {"tool": None, "arguments": {}, "error": "Model returned invalid JSON"}
 
 
 def process_command(command: str):
 
-    text = command.lower().strip()
+    tool_call = get_tool_call(command)
 
-    # -------------------------
-    # CHROME
-    # -------------------------
+    tool_name = tool_call.get("tool")
+    arguments = tool_call.get("arguments", {})
 
-    if text == "open chrome":
-        return execute_tool("open_chrome", {"profile": "main"})
+    if not tool_name:
+        return {
+            "success": False,
+            "message": tool_call.get(
+                "error", "Unable to determine the requested action."
+            ),
+        }
 
-    if text == "open main chrome":
-        return execute_tool("open_chrome", {"profile": "main"})
+    result = execute_tool(tool_name, arguments)
 
-    if text == "open second chrome":
-        return execute_tool("open_chrome", {"profile": "second"})
-
-    if text == "open college chrome":
-        return execute_tool("open_chrome", {"profile": "college"})
-
-    if text == "open backup chrome":
-        return execute_tool("open_chrome", {"profile": "backup"})
-
-    # -------------------------
-    # SPECIAL CHROME URL
-    # -------------------------
-
-    if text == "open classroom":
-        return execute_tool(
-            "open_chrome", {"profile": "college", "url": "https://classroom.google.com"}
-        )
-
-    # -------------------------
-    # OPEN
-    # -------------------------
-
-    if text.startswith("open "):
-
-        app = text.replace("open ", "", 1)
-
-        settings = [
-            "bluetooth",
-            "wifi",
-            "display",
-            "sound",
-            "notifications",
-            "windows update",
-            "privacy",
-        ]
-
-        if app.endswith(" settings"):
-            setting = app.replace(" settings", "")
-
-            return execute_tool("open_settings", {"setting": setting})
-
-        if app in settings:
-            return execute_tool("open_settings", {"setting": app})
-
-        return execute_tool("open_app", {"app_name": app})
-
-    # -------------------------
-    # CLOSE
-    # -------------------------
-
-    if text.startswith("close "):
-
-        app = text.replace("close ", "", 1)
-
-        return execute_tool("close_app", {"app_name": app})
-
-    return {"success": False, "message": "I don't understand that command yet."}
+    return {"tool": tool_name, "arguments": arguments, "result": result}
